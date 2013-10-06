@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=false;">
+
+<title>Ember Starter Kit</title>
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+	<style type="text/css">
+		html,
+		body,
+		ul {
+			padding: 0;
+			margin: 0;
+		}
+		html {
+			font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+		}
+		#lightbox {
+			position: fixed;
+			z-index: 2;
+			background: rgba(0, 0, 0, 0.9);
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			display: none;
+			padding: 20px;
+		}
+
+		#lightbox-target {
+			height: 100%;
+			width: 100%;
+			background-position: center;
+			background-repeat: no-repeat;
+			background-size: contain;
+		}
+
+		#lightbox.visible {
+			display: block;
+		}
+
+		#lightbox #controls {
+			display: none;
+		}
+
+		#lightbox.show-controls #controls {
+			display: block;
+		}
+
+		#controls {
+			text-align: center;
+			padding-top: 10px;
+			overflow: hidden;
+			width: 210px;
+			margin: 0 auto;
+		}
+
+		#controls a {
+			display: block;
+			float: left;
+			color: #fff;
+			text-decoration: none;
+			text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+			margin: 0 20px;
+		}
+
+		#main-nav {
+			position: fixed;
+			background: #000;
+			top: 0;
+			left: 0;
+			right: 0;
+			margin: 0;
+			list-style-type: none;
+			overflow: hidden;
+		}
+
+		#main-nav li a {
+			display: block;
+			float: left;
+			margin: 10px;
+			color: #0FF;
+			text-decoration: none;
+		}
+
+		#photo-list {
+			font-size: 0;
+			list-style-type: none;
+		}
+
+		#photo-list li {
+			margin: 5px;
+			display: inline-block;
+		}
+
+		#main-content {
+			margin: 0 auto;
+		}
+
+		#main-content.loading {
+			background-image: url(../img/loading.gif);
+			background-position: center center;
+			background-repeat: no-repeat;
+			height: 100%;
+			width: 100%;
+			position: absolute;
+		}
+	</style>
+</head>
+<body>
+<ul id="main-nav">
+	<li>
+		<a href="#" data-fetch-resource="photos" data-params='{"feature": "popular", "image_size": "[3,5]"}' data-template="photo-list">Popular</a>
+	</li>
+	<li>
+		<a href="#" data-fetch-resource="photos" data-params='{"feature": "upcoming","image_size": "[3,5]"}' data-template="photo-list">Upcoming</a>
+	</li>
+	<li>
+		<a href="#" data-fetch-resource="photos" data-params='{"feature": "fresh_today", "image_size": "[3,5]"}' data-template="photo-list">Fresh</a>
+	</li>
+	<li>
+		<a href="#" data-fetch-self-resource="photos" data-params='{"feature": "user_favorites"}' data-template="photo-list">My Favorites</a>
+	</li>
+	<li>
+		<a href="javascript:void(0)" onclick="_500px.login();this.html=''">Login</a>
+	</li>
+</ul>
+<a href="#" data-fetch-resource="photos" data-params='{"feature": "user", "username": "JoshuaDavis1", "image_size": "[3,5]"}' data-template="photo-list">Joshua</a>
+<div id="main-content"></div>
+<script id="template-photo-list" type="text/x-handlebars-template">
+	<ul id="photo-list">
+		{{#each photos}}
+		<li>
+			<img src="{{image_url.[0]}}" alt="{{title}}" height="280" width="280" data-fullsize="{{image_url.[1]}}" />
+		</li>
+		{{/each}}
+	</ul>
+</script>
+<div data-toggle-class="#lightbox show-controls" id="lightbox">
+	<div id="lightbox-target">
+		<div id="controls">
+			<a href="#" data-remove-class="#lightbox visible"><i class="icon-2x" style="line-height: .6em;font-size: 40px">×</i></a>
+			<a href="#" data-remove-class="#lightbox visible"><i class="icon-heart icon-2x"></i></a>
+			<a href="#" data-remove-class="#lightbox visible"><i class="icon-thumbs-up icon-2x"></i></a>
+		</div>
+	</div>
+</div>
+  <script src="js/libs/jquery-1.9.1.js"></script>
+  <script src="js/libs/handlebars.js"></script>
+  <script type="application/javascript" src="js/libs/500px.js"></script>
+  <script type="application/javascript">
+  		var me = null;
+		var clickEvent = ('ontouchstart' in document.documentElement ? 'touchend' : 'click')
+		var fastClickEvent = ('ontouchend' in document.documentElement ? 'touchstart' : 'click')
+
+        _500px.init({
+			sdk_key: 'ff47a113fe64f79dc9eb386df8420deec635870b'
+		});
+
+        _500px.on('authorization_obtained', function () {
+			_500px.api('/users', function (response) {
+				me = response.data.user;
+				console.log(me);
+			})
+		});
+
+		_500px.getAuthorizationStatus();
+
+		var getMainContentWidth = function() {
+			return (Math.floor($('html').width() / 290 ) * 290) + 'px';
+		}
+
+		//We start with popular photos
+		renderContent('photos', {
+			feature: 'popular',
+			image_size: '[3,5]'
+		}, 'photo-list')
+
+		$("#main-content").css('width', getMainContentWidth());
+
+		$(window).resize(function() {
+			$("#main-content").css('width', getMainContentWidth());
+		});
+
+		$('body').delegate('[data-fetch-resource]', clickEvent, function() {
+			var resource = $(this).attr('data-fetch-resource');
+			var template = $(this).attr('data-template');
+			var params = $.parseJSON($(this).attr('data-params'));
+			renderContent(resource, params, template);
+		})
+
+		$('body').delegate('[data-fetch-self-resource]', clickEvent, function() {
+			var resource = $(this).attr('data-fetch-self-resource');
+			var template = $(this).attr('data-template');
+			var params = $.parseJSON($(this).attr('data-params'));
+			params.user_id = me.id;
+			params.image_size = "[3,4]";
+			renderContent(resource, params, template);
+		});
+
+		$('body').delegate('[data-fullsize]', 'click', function() {
+			$('#lightbox #lightbox-target').css('background-image', 'url(' + $(this).attr('data-fullsize') + ')');
+			$('#lightbox').toggleClass('visible');
+		});
+
+		$('body').delegate('[data-toggle-class]', clickEvent, function(e) {
+			e.preventDefault();
+			var props = $(this).attr('data-toggle-class').split(' ');
+			$(props[0]).toggleClass(props[1]);
+		});
+
+		$('body').delegate('[data-remove-class]', clickEvent, function(e) {
+			e.preventDefault();
+			var props = $(this).attr('data-remove-class').split(' ');
+			$(props[0]).removeClass(props[1]);
+		});
+
+		function renderContent(resource, params, template) {
+			$("#main-content").html('').toggleClass('loading');
+			_500px.api(
+				'/' + resource,
+				params,
+				function(response) {
+					console.log(response);
+					$("#main-content").html('').toggleClass('loading');
+					var hbTemplate = Handlebars.compile($('#template-' + template).html());
+					$("#main-content").html((hbTemplate(response.data)));
+				}
+			);
+		}
+  </script>
+
+</body>
+</html>
