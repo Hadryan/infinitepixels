@@ -15,6 +15,7 @@
 		}
 		html {
 			font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+			background: #222;
 		}
 		#lightbox {
 			position: fixed;
@@ -50,7 +51,6 @@
 
 		#controls {
 			text-align: center;
-			padding-top: 10px;
 			overflow: hidden;
 			width: 210px;
 			margin: 0 auto;
@@ -62,34 +62,64 @@
 			color: #fff;
 			text-decoration: none;
 			text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-			margin: 0 20px;
+			padding: 10px 20px;
 		}
 
-		#main-nav {
+		#main-header {
 			position: fixed;
-			background: #000;
+			background: -webkit-linear-gradient(#5952FF, #2800A7);
+			box-shadow: inset 0 1px #817CFF, 0 1px 3px rgba(0, 0, 0, 0.2);
 			top: 0;
 			left: 0;
 			right: 0;
 			margin: 0;
-			list-style-type: none;
+		}
+
+		#main-header form {
+			position: absolute;
+			right: 20px;
+			top: 11px;
+		}
+
+		#main-header input {
+			background: rgba(0, 0, 0, 0.1);
+			border: 1px solid rgba(0, 0, 0, 0.2);
+			border-radius: 4px;
+			height: 15px;
+			line-height: 15px;
+			padding: 5px 10px;
+			width: 175px;
+			border-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.07) rgba(255, 255, 255, 0.12);
+			box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.1);
+			outline: 0;
+			color: #fff;
+		}
+
+		#main-nav {
 			overflow: hidden;
+			list-style-type: none;
 		}
 
 		#main-nav li a {
 			display: block;
 			float: left;
-			margin: 10px;
-			color: #0FF;
+			margin: 16px;
+			color: #FFF;
 			text-decoration: none;
+			text-transform: uppercase;
+			font-family: "Helvetica Neue";
+			font-weight: 500;
+			font-size: 13px;
+			text-shadow: 0 -1px #0070A3; 
 		}
 
-		#photo-list {
+		#photolist {
 			font-size: 0;
 			list-style-type: none;
+			margin: 52px auto 0;
 		}
 
-		#photo-list li {
+		#photolist li {
 			margin: 5px;
 			display: inline-block;
 		}
@@ -109,126 +139,162 @@
 	</style>
 </head>
 <body>
-<ul id="main-nav">
-	<li>
-		<a href="#" data-fetch-resource="photos" data-params='{"feature": "popular", "image_size": "[3,5]"}' data-template="photo-list">Popular</a>
-	</li>
-	<li>
-		<a href="#" data-fetch-resource="photos" data-params='{"feature": "upcoming","image_size": "[3,5]"}' data-template="photo-list">Upcoming</a>
-	</li>
-	<li>
-		<a href="#" data-fetch-resource="photos" data-params='{"feature": "fresh_today", "image_size": "[3,5]"}' data-template="photo-list">Fresh</a>
-	</li>
-	<li>
-		<a href="#" data-fetch-self-resource="photos" data-params='{"feature": "user_favorites"}' data-template="photo-list">My Favorites</a>
-	</li>
-	<li>
-		<a href="javascript:void(0)" onclick="_500px.login();this.html=''">Login</a>
-	</li>
-</ul>
-<a href="#" data-fetch-resource="photos" data-params='{"feature": "user", "username": "JoshuaDavis1", "image_size": "[3,5]"}' data-template="photo-list">Joshua</a>
-<div id="main-content"></div>
-<script id="template-photo-list" type="text/x-handlebars-template">
-	<ul id="photo-list">
-		{{#each photos}}
-		<li>
-			<img src="{{image_url.[0]}}" alt="{{title}}" height="280" width="280" data-fullsize="{{image_url.[1]}}" />
-		</li>
-		{{/each}}
-	</ul>
-</script>
-<div data-toggle-class="#lightbox show-controls" id="lightbox">
-	<div id="lightbox-target">
-		<div id="controls">
-			<a href="#" data-remove-class="#lightbox visible"><i class="icon-2x" style="line-height: .6em;font-size: 40px">×</i></a>
-			<a href="#" data-remove-class="#lightbox visible"><i class="icon-heart icon-2x"></i></a>
-			<a href="#" data-remove-class="#lightbox visible"><i class="icon-thumbs-up icon-2x"></i></a>
-		</div>
+	<header id="main-header">
+		<ul id="main-nav">
+			<li>
+				<a href="#photos/popular">Popular</a>
+			</li>
+			<li>
+				<a href="#photos/upcoming">Upcoming</a>
+			</li>
+			<li>
+				<a href="#photos/fresh">Fresh</a>
+			</li>
+			<li>
+				<a href="#photos/favorites">My Favorites</a>
+			</li>
+			<li>
+				<a href="javascript:void(0)" onclick="_500px.login();this.html=''">Login</a>
+			</li>
+		</ul>
+		<form>
+			<input type="text" placeholder="Search photos"/>
+		</form>
+	</header>
+	<div id="app">
+		<ul id="photolist">
+		</ul>
 	</div>
-</div>
-  <script src="js/libs/jquery-1.9.1.js"></script>
-  <script src="js/libs/handlebars.js"></script>
-  <script type="application/javascript" src="js/libs/500px.js"></script>
-  <script type="application/javascript">
-  		var me = null;
-		var clickEvent = ('ontouchstart' in document.documentElement ? 'touchend' : 'click')
-		var fastClickEvent = ('ontouchend' in document.documentElement ? 'touchstart' : 'click')
 
-        _500px.init({
+	<script id="template-image" type="text/x-handlebars-template">
+		<a href="#/photo/<%= id %>">
+			<img src="<%= image_url %>" alt="<%- description %>" height="280" width="280" />
+		</a>
+	</script>
+
+	<script src="js/libs/jquery-1.9.1.js"></script>
+	<script src="js/libs/json2.js"></script>
+	<script src="js/libs/underscore.js"></script>
+	<script src="js/libs/backbone.js"></script>
+	<script type="application/javascript" src="js/libs/500px.js"></script>
+	<script type="application/javascript">
+	//TODO de-globalize this
+		_500px.init({
 			sdk_key: 'ff47a113fe64f79dc9eb386df8420deec635870b'
 		});
 
-        _500px.on('authorization_obtained', function () {
-			_500px.api('/users', function (response) {
-				me = response.data.user;
-				console.log(me);
-			})
+		var App = {
+			popular: function() {
+				Images.fetch({
+					"feature": "popular"
+				});
+			},
+			fresh: function() {},
+			upcoming: function() {},
+		};
+
+		var Image = Backbone.Model.extend({
 		});
 
-		_500px.getAuthorizationStatus();
+		var ImageView = Backbone.View.extend({
+			tagName: "li",
+			template: _.template($('#template-image').html()),
+			events: {
 
-		var getMainContentWidth = function() {
-			return (Math.floor($('html').width() / 290 ) * 290) + 'px';
-		}
-
-		//We start with popular photos
-		renderContent('photos', {
-			feature: 'popular',
-			image_size: '[3,5]'
-		}, 'photo-list')
-
-		$("#main-content").css('width', getMainContentWidth());
-
-		$(window).resize(function() {
-			$("#main-content").css('width', getMainContentWidth());
+			},
+			initialize: function() {
+				this.listenTo(this.model, 'change', this.render);
+				this.listenTo(this.model, 'remove', this.remove);
+			},
+			render: function() {
+				this.$el.html(this.template(this.model.toJSON()));
+				return this;
+			}
 		});
 
-		$('body').delegate('[data-fetch-resource]', clickEvent, function() {
-			var resource = $(this).attr('data-fetch-resource');
-			var template = $(this).attr('data-template');
-			var params = $.parseJSON($(this).attr('data-params'));
-			renderContent(resource, params, template);
-		})
-
-		$('body').delegate('[data-fetch-self-resource]', clickEvent, function() {
-			var resource = $(this).attr('data-fetch-self-resource');
-			var template = $(this).attr('data-template');
-			var params = $.parseJSON($(this).attr('data-params'));
-			params.user_id = me.id;
-			params.image_size = "[3,4]";
-			renderContent(resource, params, template);
+		var ImageList = Backbone.Collection.extend({
+			model: Image,
+			fetch: function(params) {
+				this.trigger('fetchstart');
+				var self = this;
+				_500px.api('/photos', params, function(response) {
+					self.reset(response.data.photos);
+					self.trigger('fetchend');
+				});
+			}
 		});
 
-		$('body').delegate('[data-fullsize]', 'click', function() {
-			$('#lightbox #lightbox-target').css('background-image', 'url(' + $(this).attr('data-fullsize') + ')');
-			$('#lightbox').toggleClass('visible');
+		var Images = new ImageList;
+
+		var AppView = Backbone.View.extend({
+			el: $('#app'),
+
+			events: {
+			},
+
+			initialize: function() {
+				//Attached events that occur outside the framework
+				$(window).on('resize', $.proxy(this.normalizeView, this));
+				_500px.on('authorization_obtained', $.proxy(function () {
+					this.trigger('authorization_obtained');	
+				}, this));
+
+				this.on('authorization_obtained', this.authUser);
+				this.$photolist = $("#photolist");
+				this.listenTo(Images, 'fetchend', this.renderImageList);
+				this.listenTo(Images, 'fetchstart', this.clearImageList);
+				this.normalizeView();
+			},
+
+			clearImageList: function() {
+				this.$photolist.html('');
+			},
+
+			renderImageList: function(name) {
+				this.$photolist.html('');
+				Images.each(function(image) {
+					var view = new ImageView({model: image});
+					this.$photolist.append(view.render().el);
+				}, this);
+			},
+
+			normalizeView: function() {
+				this.$photolist.width( this.fitContent(290) );
+			},
+
+			fitContent: function(width) {
+				return Math.floor( $(window).width() / width ) * width;
+			},
+
+			authUser: function() {
+				_500px.api('/users', function (response) {
+					var me = response.data.user;
+					console.log(me);
+				})
+			}
 		});
 
-		$('body').delegate('[data-toggle-class]', clickEvent, function(e) {
-			e.preventDefault();
-			var props = $(this).attr('data-toggle-class').split(' ');
-			$(props[0]).toggleClass(props[1]);
+
+		var Router = Backbone.Router.extend({
+			routes: {
+				"photos/:feature(/:user_id)":  "photolist",
+				"photo/:id":                   "photo",
+			},
+			photolist: function(feature, userId) {
+				Images.fetch({
+					"feature": feature,
+					"image_size": 3
+				})
+			},
+			photo: function(id) {
+				App.showPhoto(id);
+			}
 		});
 
-		$('body').delegate('[data-remove-class]', clickEvent, function(e) {
-			e.preventDefault();
-			var props = $(this).attr('data-remove-class').split(' ');
-			$(props[0]).removeClass(props[1]);
-		});
+		var route = new Router();
 
-		function renderContent(resource, params, template) {
-			$("#main-content").html('').toggleClass('loading');
-			_500px.api(
-				'/' + resource,
-				params,
-				function(response) {
-					console.log(response);
-					$("#main-content").html('').toggleClass('loading');
-					var hbTemplate = Handlebars.compile($('#template-' + template).html());
-					$("#main-content").html((hbTemplate(response.data)));
-				}
-			);
-		}
+		var App = new AppView();
+		Backbone.history.start();
   </script>
 
 </body>
