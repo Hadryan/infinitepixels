@@ -2,9 +2,10 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, user-scalable=false;">
+<meta name="viewport" content="user-scalable=false; initial-scale = 1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
 
-<title>Ember Starter Kit</title>
+<title>Infinite Pixels</title>
 	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
 	<style type="text/css">
 		html,
@@ -15,18 +16,21 @@
 		}
 		html {
 			font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-			background: #222;
+			background: #111;
 		}
 		#lightbox {
 			position: fixed;
-			z-index: 2;
+			z-index: 5;
 			background: rgba(0, 0, 0, 0.9);
 			top: 0;
 			right: 0;
 			bottom: 0;
 			left: 0;
-			display: none;
 			padding: 20px;
+		}
+
+		#lightbox:empty {
+			display: none;
 		}
 
 		#lightbox-target {
@@ -35,18 +39,6 @@
 			background-position: center;
 			background-repeat: no-repeat;
 			background-size: contain;
-		}
-
-		#lightbox.visible {
-			display: block;
-		}
-
-		#lightbox #controls {
-			display: none;
-		}
-
-		#lightbox.show-controls #controls {
-			display: block;
 		}
 
 		#controls {
@@ -128,17 +120,43 @@
 			margin: 0 auto;
 		}
 
-		#main-content.loading {
-			background-image: url(../img/loading.gif);
-			background-position: center center;
-			background-repeat: no-repeat;
-			height: 100%;
-			width: 100%;
+		.image-target {
+			width: 96%;
+			height: 96%;
 			position: absolute;
+			background-repeat: no-repeat;
+			background-position: center center;
+			background-size: contain;
+			top: 2%;
+			right: 2%;
+			bottom: 2%;
+			left: 2%;
+		}
+		#show-more {
+			width: 300px;
+			margin: 10px auto 30px;
+			text-align: center;
+			background: linear-gradient(#3B278B, #140080);
+			display: block;
+			padding: 10px;
+			border-radius: 3px;
+			text-decoration: none;
+			color: #FFF;
+			text-shadow: 0 1px #000;
+			border: #001855 solid 1px;
+			box-shadow: inset 0 1px #0649F3;
+		}
+
+		body.logged-in .show-logged-out {
+			display: none;
+		}
+
+		body.logged-out .show-logged-in {
+			display: none;
 		}
 	</style>
 </head>
-<body>
+<body class="logged-out">
 	<header id="main-header">
 		<ul id="main-nav">
 			<li>
@@ -150,11 +168,14 @@
 			<li>
 				<a href="#photos/fresh">Fresh</a>
 			</li>
-			<li>
-				<a href="#photos/favorites">My Favorites</a>
+			<li class="show-logged-in">
+				<a href="#photos/user_favorites/0/0">My Favorites</a>
 			</li>
-			<li>
-				<a href="javascript:void(0)" onclick="_500px.login();this.html=''">Login</a>
+			<li class="show-logged-in">
+				<a href="javascript:void(0)" onclick="_500px.logout()">Logout</a>
+			</li>
+			<li class="show-logged-out">
+				<a href="javascript:void(0)" onclick="_500px.login();">Login</a>
 			</li>
 		</ul>
 		<form>
@@ -162,14 +183,24 @@
 		</form>
 	</header>
 	<div id="app">
-		<ul id="photolist">
-		</ul>
+		<div id="photolist-container">
+			<ul id="photolist">
+			</ul>
+			<a href="#" id="show-more">Show More</a>
+		</div>
+		<div id="lightbox"></div>
 	</div>
 
 	<script id="template-image" type="text/x-handlebars-template">
 		<a href="#/photo/<%= id %>">
-			<img src="<%= image_url %>" alt="<%- description %>" height="280" width="280" />
+			<img src="<%= image_url[0] %>" alt="<%- description %>" height="280" width="280" />
 		</a>
+	</script>
+
+	<script id="template-lightbox-image" type="text/x-handlebars-template">
+		<div class="wrapper">
+			<div class="image-target" style="background-image: url('<%= image_url[1] %>');" alt="<%- description %>" />
+		</div>
 	</script>
 
 	<script src="js/libs/jquery-1.9.1.js"></script>
@@ -179,19 +210,27 @@
 	<script type="application/javascript" src="js/libs/500px.js"></script>
 	<script type="application/javascript">
 	//TODO de-globalize this
+		var me = {}
+		me.id = 0;
+
 		_500px.init({
 			sdk_key: 'ff47a113fe64f79dc9eb386df8420deec635870b'
 		});
 
-		var App = {
-			popular: function() {
-				Images.fetch({
-					"feature": "popular"
-				});
-			},
-			fresh: function() {},
-			upcoming: function() {},
-		};
+		_500px.on('authorization_obtained', $.proxy(function () {
+			_500px.api('/users', $.proxy(function (response) {
+				App.me = response.data.user;
+				$("body").addClass("logged-in").removeClass("logged-out");
+			}, this));
+		},this));
+
+		_500px.getAuthorizationStatus();
+
+		_500px.on('logout', $.proxy(function () {
+			$("body").removeClass("logged-in").addClass("logged-out");
+		},this));
+
+		var App = {};
 
 		var Image = Backbone.Model.extend({
 		});
@@ -200,7 +239,6 @@
 			tagName: "li",
 			template: _.template($('#template-image').html()),
 			events: {
-
 			},
 			initialize: function() {
 				this.listenTo(this.model, 'change', this.render);
@@ -211,6 +249,18 @@
 				return this;
 			}
 		});
+		var LightboxImageView = ImageView.extend({
+			tagName: "div",
+			template: _.template($('#template-lightbox-image').html()),
+			initialize: function(){},
+			events: {
+				"click .image-target": "hideLightbox"
+			},
+			hideLightbox: function() {
+				$('#lightbox').empty();
+				history.back();
+			}
+		});
 
 		var ImageList = Backbone.Collection.extend({
 			model: Image,
@@ -218,8 +268,18 @@
 				this.trigger('fetchstart');
 				var self = this;
 				_500px.api('/photos', params, function(response) {
-					self.reset(response.data.photos);
-					self.trigger('fetchend');
+					console.log(response.data);
+					if (params.append) {
+						_.each(response.data.photos, function(photo) {
+							self.add(photo);
+						});
+					} else {
+						self.reset(response.data.photos);
+					}
+					delete response.data.photos;
+					var template = params.nextURL ? params.nextURL : "#photos/<%= feature %>/<% print(current_page + 1) %>";
+					var nextURL = _.template(template, response.data);
+					self.trigger('fetchend', response.data, nextURL);
 				});
 			}
 		});
@@ -235,23 +295,24 @@
 			initialize: function() {
 				//Attached events that occur outside the framework
 				$(window).on('resize', $.proxy(this.normalizeView, this));
-				_500px.on('authorization_obtained', $.proxy(function () {
-					this.trigger('authorization_obtained');	
-				}, this));
+				this.authUser();
 
 				this.on('authorization_obtained', this.authUser);
 				this.$photolist = $("#photolist");
+				this.$showmore = $("#show-more");
+				this.$lightbox = $("#lightbox");
 				this.listenTo(Images, 'fetchend', this.renderImageList);
 				this.listenTo(Images, 'fetchstart', this.clearImageList);
 				this.normalizeView();
 			},
 
 			clearImageList: function() {
-				this.$photolist.html('');
+			//	this.$photolist.html('');
 			},
 
-			renderImageList: function(name) {
+			renderImageList: function(data, nextURL) {
 				this.$photolist.html('');
+				this.$showmore.attr('href', nextURL);
 				Images.each(function(image) {
 					var view = new ImageView({model: image});
 					this.$photolist.append(view.render().el);
@@ -267,27 +328,58 @@
 			},
 
 			authUser: function() {
-				_500px.api('/users', function (response) {
-					var me = response.data.user;
-					console.log(me);
-				})
+
+			},
+
+			showPhoto: function(id) {
+				var view = new LightboxImageView({
+					model: Images.get(id)
+				});
+				//Arbitrary CSS hack to make popping the lightbox work on mobile safari... have no idea why this works
+				this.$lightbox.html(view.render().el).css('kerning', 0);
 			}
 		});
 
 
 		var Router = Backbone.Router.extend({
 			routes: {
-				"photos/:feature(/:user_id)":  "photolist",
-				"photo/:id":                   "photo",
+				"": "index",
+				"photos/user_favorites(/:user_id)(/:page)": "favorites",
+				"photos/:feature(/:user_id)": "photolist",
+				"photo/:id": "photo",
 			},
-			photolist: function(feature, userId) {
+
+			index: function() {
+				this.photolist('popular', 0);
+			},
+
+			photolist: function(feature, page) {
 				Images.fetch({
 					"feature": feature,
-					"image_size": 3
+					"image_size": "[3, 5]",
+					"page" : page ? page : 0,
+					"append": !!page,
 				})
 			},
+
 			photo: function(id) {
 				App.showPhoto(id);
+			},
+
+			favorites: function(userId, page) {
+				if(!userId || userId == 0) {
+					userId = App.me.id;
+				}
+
+				Images.fetch({
+					"feature": "user_favorites",
+					"sort": "created_at",
+					"image_size": "[3, 5]",
+					"user_id": userId,
+					"page" : page ? page : 0,
+					"append": page == 0 ? false : true,
+					"nextURL": "#photos/<%= feature %>/<%= filters.user_id %>/<% print(current_page + 1) %>"
+				})
 			}
 		});
 
