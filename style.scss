@@ -235,17 +235,22 @@ body.logged-out .show-logged-in {
 		li {
 			position: relative;
 			z-index: 2;
-		}
-		li form,
-		li a {
-			float: none;
-			background: #3E23CE;
-			margin: 0;
-			padding: 20px;
-			display: block;
-			border-bottom: rgba(0, 0, 0, 0.3) solid 1px;
-			border-top: rgba(255, 255, 255, 0.2) solid 1px;
-			position: static;
+			form {
+				padding: 16px 20px 15px;
+			}
+			form,
+			a {
+				float: none;
+				background: #3E23CE;
+				margin: 0;
+				display: block;
+				border-bottom: rgba(0, 0, 0, 0.3) solid 1px;
+				border-top: rgba(255, 255, 255, 0.2) solid 1px;
+				position: static;
+			}
+			a {
+				padding: 20px;
+			}
 		}
 		li:first-child a {
 			border-top: 0;
