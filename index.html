@@ -17,6 +17,12 @@
 		<a href="#" id="branding"><strong>Infinite</strong>Pixels</a>
 		<ul id="main-nav" class="hide-mobile">
 			<li>
+				<form action="#/search" method="get">
+					<input name="search" type="text" placeholder="Search photos"/>
+					<button type="submit"  value=""><i class="icon-search"></i></button>
+				</form>
+			</li>
+			<li>
 				<a href="#photos/popular">Popular</a>
 			</li>
 			<li>
@@ -35,9 +41,6 @@
 				<a href="javascript:void(0)" onclick="_500px.login();">Login</a>
 			</li>
 		</ul>
-		<form class="hide-mobile">
-			<input type="text" placeholder="Search photos"/>
-		</form>
 	</header>
 	<div id="app">
 		<div id="photolist-container">
@@ -68,6 +71,8 @@
 	<script src="js/libs/backbone.js"></script>
 	<script type="application/javascript" src="js/libs/500px.js"></script>
 	<script type="application/javascript">
+		var fastClick = 'touchstart' in window ? 'touchstart' : 'click';
+
 		//TODO de-globalize this
 		_500px.init({
 			sdk_key: 'ff47a113fe64f79dc9eb386df8420deec635870b'
@@ -99,8 +104,21 @@
 		}, 1000);
 
 		//Mobile devices get an icon in place of a menu
-		$('#show-menu, #main-nav a').on('click', function() {
+		$('#show-menu, #main-nav a').on(fastClick, function() {
 			$("#main-nav").toggleClass('hide-mobile');
+		});
+
+		$('#main-nav a').on('click', function() {
+			$(document).scrollTop(0);
+		});
+
+		//Browsers append a ? to get forms, we want our app to handle form submissions
+		$('form').on('submit', function(e) {
+			e.preventDefault();
+			$("input:focus").blur();
+			$("#main-nav").addClass('hide-mobile');
+			window.location = $(e.currentTarget).attr('action');
+			$(document).scrollTop(0);
 		});
 	</script>
 	<script src="js/app.js"></script>
