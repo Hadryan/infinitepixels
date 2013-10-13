@@ -56,13 +56,13 @@
 
 	<script id="template-image" type="text/x-handlebars-template">
 		<a href="#/photo/<%= id %>">
-			<img src="<%= image_url[0] %>" alt="<%- description %>" height="280" width="280" />
+			<img src="<%- getCleanImage(0) %>" alt="<%- get('description') %>" height="280" width="280" />
 		</a>
 	</script>
 
 	<script id="template-lightbox-image" type="text/x-handlebars-template">
 		<div class="wrapper">
-			<div class="image-target" style="background-image: url('<%= image_url[1] %>');" alt="<%- description %>" />
+			<div class="image-target" style="background-image: url('<%= getCleanImage(1, true) %>');" alt="<%- get('description') %>" />
 		</div>
 	</script>
 	<script src="js/libs/jquery-1.9.1.js"></script>

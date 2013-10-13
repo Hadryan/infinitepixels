@@ -1,6 +1,13 @@
 var App = {};
 
 var Image = Backbone.Model.extend({
+	getCleanImage: function(index, override) {
+		if(override === null) {
+			override = false;
+		}
+		var imageURL = this.get('image_url');
+		return (this.get('nsfw') && !override ? '/img/adult.png' : imageURL[index]);
+	}
 });
 
 var ImageView = Backbone.View.extend({
@@ -13,7 +20,7 @@ var ImageView = Backbone.View.extend({
 		this.listenTo(this.model, 'remove', this.remove);
 	},
 	render: function() {
-		this.$el.html(this.template(this.model.toJSON()));
+		this.$el.html(this.template(this.model));
 		return this;
 	}
 });
