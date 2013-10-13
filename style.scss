@@ -81,6 +81,15 @@ html {
 			outline: 0;
 			color: #fff;
 		}
+		button {
+			position: absolute;
+			top: -1px;
+			right: 1px;
+			background: none;
+			border: 0;
+			color: #FFF;
+			font-size: 14px;
+		}
 	}
 }
 
@@ -141,12 +150,13 @@ html {
 	text-shadow: 0 1px #000;
 	border: #001855 solid 1px;
 	box-shadow: inset 0 1px #0649F3;
+	height: 40px;
 
 	&.loading .label {
 		display: none;
 	}
 
-	&.icon-spin {
+	.icon-spin {
 		display: none;
 	}
 
@@ -195,21 +205,54 @@ body.logged-out .show-logged-in {
 		position: absolute;
 		top: 47px;
 		width: 100%;
-	}
-	#main-nav li a {
-		float: none;
-		background: #3E23CE;
-		margin: 0;
-		padding: 20px;
-		display: block;
-		border-bottom: rgba(0, 0, 0, 0.3) solid 1px;
-		border-top: rgba(255, 255, 255, 0.2) solid 1px;
-	}
-	#main-nav li:first-child a {
-		border-top: 0;
-	}
-	#main-nav li:last-child a {
-		border-bottom: 0;
+		form input {
+			background: none;
+			border: none;
+			box-shadow: none;
+			padding: 0;
+			text-transform: uppercase;
+			color: #FFF;
+			font-size: 13px;
+			width: 100%;
+			&,
+			&::-webkit-input-placeholder {
+				color: #FFF;
+			}
+		}
+		form {
+			button {
+				height: 100%;
+				i {
+					top: 50%;
+					right: 12px;
+					font-size: 18px;
+					height: 30px;
+					line-height: 30px;
+					margin-top: -15px;
+				}
+			}
+		}
+		li {
+			position: relative;
+			z-index: 2;
+		}
+		li form,
+		li a {
+			float: none;
+			background: #3E23CE;
+			margin: 0;
+			padding: 20px;
+			display: block;
+			border-bottom: rgba(0, 0, 0, 0.3) solid 1px;
+			border-top: rgba(255, 255, 255, 0.2) solid 1px;
+			position: static;
+		}
+		li:first-child a {
+			border-top: 0;
+		}
+		li:last-child a {
+			border-bottom: 0;
+		}
 	}
 	#show-menu {
 		color: #fff;
