@@ -1,246 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="user-scalable=false, initial-scale = 1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-
-<title>Infinite Pixels</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="user-scalable=false, initial-scale = 1.0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<title>Infinite Pixels</title>
 	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
-	<style type="text/css">
-		* {
-			max-width: 100%;
-			  -moz-box-sizing: border-box;
-			  -webkit-box-sizing: border-box;
-			  box-sizing: border-box;
-		}
-		html,
-		body,
-		ul {
-			padding: 0;
-			margin: 0;
-		}
-		html {
-			font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-			background: #191919;
-		}
-		#lightbox {
-			position: fixed;
-			z-index: 5;
-			background: rgba(0, 0, 0, 0.9);
-			top: 0;
-			right: 0;
-			bottom: 0;
-			left: 0;
-			padding: 20px;
-		}
-
-		#lightbox:empty {
-			display: none;
-		}
-
-		#lightbox-target {
-			height: 100%;
-			width: 100%;
-			background-position: center;
-			background-repeat: no-repeat;
-			background-size: contain;
-		}
-
-		#controls {
-			text-align: center;
-			overflow: hidden;
-			width: 210px;
-			margin: 0 auto;
-		}
-
-		#controls a {
-			display: block;
-			float: left;
-			color: #fff;
-			text-decoration: none;
-			text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-			padding: 10px 20px;
-		}
-
-		#main-header {
-			position: fixed;
-			background: linear-gradient(#5952FF, #2800A7);
-			background: -webkit-linear-gradient(#5952FF, #2800A7);
-			box-shadow: inset 0 1px #817CFF, 0 1px 3px rgba(0, 0, 0, 0.2);
-			top: 0;
-			left: 0;
-			right: 0;
-			margin: 0;
-			height: 48px;
-		}
-
-		#main-header form {
-			position: absolute;
-			right: 20px;
-			top: 11px;
-		}
-
-		#main-header input {
-			background: rgba(0, 0, 0, 0.1);
-			border: 1px solid rgba(0, 0, 0, 0.2);
-			border-radius: 4px;
-			height: 25px;
-			line-height: 25px;
-			padding: 5px 10px;
-			width: 175px;
-			border-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.07) rgba(255, 255, 255, 0.12);
-			box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.1);
-			outline: 0;
-			color: #fff;
-		}
-
-		#main-nav {
-			overflow: hidden;
-			list-style-type: none;
-		}
-
-		#main-nav li a {
-			display: block;
-			float: left;
-			margin: 16px;
-			color: #FFF;
-			text-decoration: none;
-			text-transform: uppercase;
-			font-family: "Helvetica Neue";
-			font-weight: 500;
-			font-size: 13px;
-			text-shadow: 0 -1px #0070A3; 
-		}
-
-		#photolist {
-			font-size: 0;
-			list-style-type: none;
-			margin: 52px auto 0;
-		}
-
-		#photolist li {
-			margin: 5px;
-			display: inline-block;
-		}
-
-		#main-content {
-			margin: 0 auto;
-		}
-
-		.image-target {
-			width: 96%;
-			height: 96%;
-			position: absolute;
-			background-repeat: no-repeat;
-			background-position: center center;
-			background-size: contain;
-			top: 2%;
-			right: 2%;
-			bottom: 2%;
-			left: 2%;
-		}
-		#show-more {
-			width: 300px;
-			margin: 10px auto 30px;
-			text-align: center;
-			background: -webkit-gradient(#3B278B, #140080);
-			background: linear-gradient(#3B278B, #140080);
-			display: block;
-			padding: 10px;
-			border-radius: 3px;
-			text-decoration: none;
-			color: #FFF;
-			text-shadow: 0 1px #000;
-			border: #001855 solid 1px;
-			box-shadow: inset 0 1px #0649F3;
-		}
-
-		#show-more.loading .label {
-			display: none;
-		}
-
-		#show-more .icon-spin {
-			display: none;
-		}
-
-		#show-more.loading .icon-spin {
-			display: block;
-		}
-
-		body.logged-in .show-logged-out {
-			display: none;
-		}
-
-		body.logged-out .show-logged-in {
-			display: none;
-		}
-		#branding {
-			color: #FFF;
-			text-decoration: none;
-			font-size: 20px;
-			display: block;
-			margin: 10px auto 0;
-			width: 150px;
-			text-align: center;
-			font-family: "helvetica neue", "helvetica", "arial", sans-serif;
-		}
-		@media (min-width: 900px) {
-			#branding {
-				float: left;
-			}
-
-			.hide-desktop {
-				display: none!important;
-			}
-		}
-
-		@media (max-width: 900px) {
-			body {
-				max-width: 100%;
-			}
-			.hide-mobile {
-				display: none!important;
-			}
-			#main-nav {
-				position: absolute;
-				top: 47px;
-				width: 100%;
-			}
-			#main-nav li a {
-				float: none;
-				background: #3E23CE;
-				margin: 0;
-				padding: 20px;
-				display: block;
-				border-bottom: rgba(0, 0, 0, 0.3) solid 1px;
-				border-top: rgba(255, 255, 255, 0.2) solid 1px;
-			}
-			#main-nav li:first-child a {
-				border-top: 0;
-			}
-			#main-nav li:last-child a {
-				border-bottom: 0;
-			}
-			#show-menu {
-				color: #fff;
-				text-decoration: none;
-				font-size: 13px;
-				display: block;
-				padding: 11px 17px 11px;
-				text-shadow: 0 1px 0px rgba(0, 0, 0, 0.5);
-				float: left;
-			}
-			#branding {
-				display: block;
-				margin: 10px auto 0;
-				text-align: center;
-			}
-		}
-
-
-	</style>
+	<link href="style.css" rel="stylesheet">
 </head>
 <body class="logged-out">
 	<header id="main-header">
@@ -295,17 +62,13 @@
 			<div class="image-target" style="background-image: url('<%= image_url[1] %>');" alt="<%- description %>" />
 		</div>
 	</script>
-
 	<script src="js/libs/jquery-1.9.1.js"></script>
 	<script src="js/libs/json2.js"></script>
 	<script src="js/libs/underscore.js"></script>
 	<script src="js/libs/backbone.js"></script>
 	<script type="application/javascript" src="js/libs/500px.js"></script>
 	<script type="application/javascript">
-	//TODO de-globalize this
-		var me = {}
-		me.id = 0;
-
+		//TODO de-globalize this
 		_500px.init({
 			sdk_key: 'ff47a113fe64f79dc9eb386df8420deec635870b'
 		});
@@ -329,173 +92,17 @@
 			if($('body').scrollTop() + $(window).height() + 1000 < $('#show-more').offset().top) {
 				return;
 			}
-			window.location = $('#show-more').attr('href');
+			var $showMore = $('#show-more');
+			if($showMore) {
+				window.location = $showMore.attr('href');
+			}
 		}, 1000);
 
 		//Mobile devices get an icon in place of a menu
 		$('#show-menu, #main-nav a').on('click', function() {
 			$("#main-nav").toggleClass('hide-mobile');
 		});
-
-		var App = {};
-
-		var Image = Backbone.Model.extend({
-		});
-
-		var ImageView = Backbone.View.extend({
-			tagName: "li",
-			template: _.template($('#template-image').html()),
-			events: {
-			},
-			initialize: function() {
-				this.listenTo(this.model, 'change', this.render);
-				this.listenTo(this.model, 'remove', this.remove);
-			},
-			render: function() {
-				this.$el.html(this.template(this.model.toJSON()));
-				return this;
-			}
-		});
-		var LightboxImageView = ImageView.extend({
-			tagName: "div",
-			template: _.template($('#template-lightbox-image').html()),
-			initialize: function(){},
-			events: {
-				"click .image-target": "hideLightbox"
-			},
-			hideLightbox: function() {
-				$('#lightbox').empty();
-				history.back();
-			}
-		});
-
-		var ImageList = Backbone.Collection.extend({
-			model: Image,
-			fetch: function(params) {
-				this.trigger('fetchstart');
-				var self = this;
-				_500px.api('/photos', params, function(response) {
-					console.log(response.data);
-					if (params.append) {
-						_.each(response.data.photos, function(photo) {
-							self.add(photo);
-						});
-					} else {
-						self.reset(response.data.photos);
-					}
-					delete response.data.photos;
-					var template = params.nextURL ? params.nextURL : "#photos/<%= feature %>/<% print(current_page + 1) %>";
-					var nextURL = _.template(template, response.data);
-					self.trigger('fetchend', response.data, nextURL);
-				});
-			}
-		});
-
-		var Images = new ImageList;
-
-		var AppView = Backbone.View.extend({
-			el: $('#app'),
-
-			events: {
-			},
-
-			initialize: function() {
-				//Attached events that occur outside the framework
-				$(window).on('resize', $.proxy(this.normalizeView, this));
-				this.authUser();
-
-				this.on('authorization_obtained', this.authUser);
-				this.$photolist = $("#photolist");
-				this.$showmore = $("#show-more");
-				this.$lightbox = $("#lightbox");
-				this.listenTo(Images, 'fetchend', this.renderImageList);
-				this.listenTo(Images, 'fetchstart', this.clearImageList);
-				this.normalizeView();
-			},
-
-			clearImageList: function() {
-				this.$showmore.addClass('loading');
-			//	this.$photolist.html('');
-			},
-
-			renderImageList: function(data, nextURL) {
-				this.$photolist.html('');
-				this.$showmore.attr('href', nextURL).removeClass('loading');
-				Images.each(function(image) {
-					var view = new ImageView({model: image});
-					this.$photolist.append(view.render().el);
-				}, this);
-			},
-
-			normalizeView: function() {
-				this.$photolist.width( this.fitContent(290) );
-			},
-
-			fitContent: function(width) {
-				return Math.floor( $(window).width() / width ) * width;
-			},
-
-			authUser: function() {
-
-			},
-
-			showPhoto: function(id) {
-				var view = new LightboxImageView({
-					model: Images.get(id)
-				});
-				//Arbitrary CSS hack to make popping the lightbox work on mobile safari... have no idea why this works
-				this.$lightbox.html(view.render().el).css('kerning', 0);
-			}
-		});
-
-
-		var Router = Backbone.Router.extend({
-			routes: {
-				"": "index",
-				"photos/user_favorites(/:user_id)(/:page)": "favorites",
-				"photos/:feature(/:user_id)": "photolist",
-				"photo/:id": "photo",
-			},
-
-			index: function() {
-				this.photolist('popular', 0);
-			},
-
-			photolist: function(feature, page) {
-				Images.fetch({
-					"feature": feature,
-					"image_size": "[3, 5]",
-					"page" : page ? page : 0,
-					"append": !!page,
-				})
-			},
-
-			photo: function(id) {
-				App.showPhoto(id);
-			},
-
-			favorites: function(userId, page) {
-				if(!userId || userId == 0) {
-					userId = App.me.id;
-				}
-
-				Images.fetch({
-					"feature": "user_favorites",
-					"sort": "created_at",
-					"image_size": "[3, 5]",
-					"user_id": userId,
-					"page" : page ? page : 0,
-					"append": page == 0 ? false : true,
-					"nextURL": "#photos/<%= feature %>/<%= filters.user_id %>/<% print(current_page + 1) %>"
-				})
-			}
-		});
-
-		var route = new Router();
-
-		var App = new AppView();
-		Backbone.history.start();
-  </script>
-
+	</script>
+	<script src="js/app.js"></script>
 </body>
 </html>
