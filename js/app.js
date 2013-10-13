@@ -35,7 +35,20 @@ var ImageList = Backbone.Collection.extend({
 	fetch: function(params) {
 		this.trigger('fetchstart');
 		var self = this;
-		_500px.api('/photos', params, function(response) {
+		var getURL = null;
+
+		if(params.getURL) {
+			getURL = params.getURL;
+			delete params.getURL;
+		} else {
+			getURL = '/photos';
+		}
+
+		if(params.append) {
+			this.trigger('cleanfetch');
+		}
+
+		_500px.api(getURL, params, function(response) {
 			console.log(response.data);
 			if (params.append) {
 				_.each(response.data.photos, function(photo) {
@@ -44,7 +57,7 @@ var ImageList = Backbone.Collection.extend({
 			} else {
 				self.reset(response.data.photos);
 			}
-			delete response.data.photos;
+			//delete response.data.photos;
 			var template = params.nextURL ? params.nextURL : "#photos/<%= feature %>/<% print(current_page + 1) %>";
 			var nextURL = _.template(template, response.data);
 			self.trigger('fetchend', response.data, nextURL);
@@ -70,13 +83,12 @@ var AppView = Backbone.View.extend({
 		this.$showmore = $("#show-more");
 		this.$lightbox = $("#lightbox");
 		this.listenTo(Images, 'fetchend', this.renderImageList);
-		this.listenTo(Images, 'fetchstart', this.clearImageList);
+		this.listenTo(Images, 'fetchstart', this.showLoading);
 		this.normalizeView();
 	},
 
-	clearImageList: function() {
+	showLoading: function() {
 		this.$showmore.addClass('loading');
-	//	this.$photolist.html('');
 	},
 
 	renderImageList: function(data, nextURL) {
@@ -116,6 +128,7 @@ var Router = Backbone.Router.extend({
 		"photos/user_favorites(/:user_id)(/:page)": "favorites",
 		"photos/:feature(/:user_id)": "photolist",
 		"photo/:id": "photo",
+		"search(/:term)(/:page)": "search"
 	},
 
 	index: function() {
@@ -149,6 +162,26 @@ var Router = Backbone.Router.extend({
 			"append": page == 0 ? false : true,
 			"nextURL": "#photos/<%= feature %>/<%= filters.user_id %>/<% print(current_page + 1) %>"
 		})
+	},
+
+	search: function(term, page) {
+		//Makes the hash change when searching for a new term
+		if(term === null) {
+			var $search = $('form[action="#/search"] [name="search"]');
+			window.location = "#search/" + $search.val() + "/0";
+			$search.val(null);
+			return;
+		}
+
+		Images.fetch({
+			"term": term, 
+			"sort": "rating",
+			"image_size": "[3, 5]",
+			"page" : page ? page : 0,
+			"append": page == 0 ? false : true,
+			"nextURL": "#search/" + term + "/<% print(current_page + 1) %>",
+			"getURL": "/photos/search"
+		});
 	}
 });
 
