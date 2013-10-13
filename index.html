@@ -2,12 +2,19 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="user-scalable=false; initial-scale = 1.0">
+<meta name="viewport" content="user-scalable=false, initial-scale = 1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 
 <title>Infinite Pixels</title>
 	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
 	<style type="text/css">
+		* {
+			max-width: 100%;
+			  -moz-box-sizing: border-box;
+			  -webkit-box-sizing: border-box;
+			  box-sizing: border-box;
+		}
 		html,
 		body,
 		ul {
@@ -16,7 +23,7 @@
 		}
 		html {
 			font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-			background: #111;
+			background: #191919;
 		}
 		#lightbox {
 			position: fixed;
@@ -59,12 +66,14 @@
 
 		#main-header {
 			position: fixed;
+			background: linear-gradient(#5952FF, #2800A7);
 			background: -webkit-linear-gradient(#5952FF, #2800A7);
 			box-shadow: inset 0 1px #817CFF, 0 1px 3px rgba(0, 0, 0, 0.2);
 			top: 0;
 			left: 0;
 			right: 0;
 			margin: 0;
+			height: 48px;
 		}
 
 		#main-header form {
@@ -77,8 +86,8 @@
 			background: rgba(0, 0, 0, 0.1);
 			border: 1px solid rgba(0, 0, 0, 0.2);
 			border-radius: 4px;
-			height: 15px;
-			line-height: 15px;
+			height: 25px;
+			line-height: 25px;
 			padding: 5px 10px;
 			width: 175px;
 			border-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.07) rgba(255, 255, 255, 0.12);
@@ -136,6 +145,7 @@
 			width: 300px;
 			margin: 10px auto 30px;
 			text-align: center;
+			background: -webkit-gradient(#3B278B, #140080);
 			background: linear-gradient(#3B278B, #140080);
 			display: block;
 			padding: 10px;
@@ -147,6 +157,18 @@
 			box-shadow: inset 0 1px #0649F3;
 		}
 
+		#show-more.loading .label {
+			display: none;
+		}
+
+		#show-more .icon-spin {
+			display: none;
+		}
+
+		#show-more.loading .icon-spin {
+			display: block;
+		}
+
 		body.logged-in .show-logged-out {
 			display: none;
 		}
@@ -154,11 +176,79 @@
 		body.logged-out .show-logged-in {
 			display: none;
 		}
+		#branding {
+			color: #FFF;
+			text-decoration: none;
+			font-size: 20px;
+			display: block;
+			margin: 10px auto 0;
+			width: 150px;
+			text-align: center;
+			font-family: "helvetica neue", "helvetica", "arial", sans-serif;
+		}
+		@media (min-width: 900px) {
+			#branding {
+				float: left;
+			}
+
+			.hide-desktop {
+				display: none!important;
+			}
+		}
+
+		@media (max-width: 900px) {
+			body {
+				max-width: 100%;
+			}
+			.hide-mobile {
+				display: none!important;
+			}
+			#main-nav {
+				position: absolute;
+				top: 47px;
+				width: 100%;
+			}
+			#main-nav li a {
+				float: none;
+				background: #3E23CE;
+				margin: 0;
+				padding: 20px;
+				display: block;
+				border-bottom: rgba(0, 0, 0, 0.3) solid 1px;
+				border-top: rgba(255, 255, 255, 0.2) solid 1px;
+			}
+			#main-nav li:first-child a {
+				border-top: 0;
+			}
+			#main-nav li:last-child a {
+				border-bottom: 0;
+			}
+			#show-menu {
+				color: #fff;
+				text-decoration: none;
+				font-size: 13px;
+				display: block;
+				padding: 11px 17px 11px;
+				text-shadow: 0 1px 0px rgba(0, 0, 0, 0.5);
+				float: left;
+			}
+			#branding {
+				display: block;
+				margin: 10px auto 0;
+				text-align: center;
+			}
+		}
+
+
 	</style>
 </head>
 <body class="logged-out">
 	<header id="main-header">
-		<ul id="main-nav">
+		<a href="javascript:void(0)" class="hide-desktop" id="show-menu">
+			<i class="icon-reorder icon-2x"></i>
+		</a>
+		<a href="#" id="branding"><strong>Infinite</strong>Pixels</a>
+		<ul id="main-nav" class="hide-mobile">
 			<li>
 				<a href="#photos/popular">Popular</a>
 			</li>
@@ -178,7 +268,7 @@
 				<a href="javascript:void(0)" onclick="_500px.login();">Login</a>
 			</li>
 		</ul>
-		<form>
+		<form class="hide-mobile">
 			<input type="text" placeholder="Search photos"/>
 		</form>
 	</header>
@@ -186,7 +276,10 @@
 		<div id="photolist-container">
 			<ul id="photolist">
 			</ul>
-			<a href="#" id="show-more">Show More</a>
+			<a href="#" id="show-more">
+				<span class="label">Show More</span>
+				<i class="icon-spinner icon-spin"></i>
+			</a>
 		</div>
 		<div id="lightbox"></div>
 	</div>
@@ -229,6 +322,20 @@
 		_500px.on('logout', $.proxy(function () {
 			$("body").removeClass("logged-in").addClass("logged-out");
 		},this));
+
+		//Infinite scroll, poll every N seconds to see if we should get more data 
+		window.setInterval(function() {
+			//Only fetch more if we're near the end of the document
+			if($('body').scrollTop() + $(window).height() + 1000 < $('#show-more').offset().top) {
+				return;
+			}
+			window.location = $('#show-more').attr('href');
+		}, 1000);
+
+		//Mobile devices get an icon in place of a menu
+		$('#show-menu, #main-nav a').on('click', function() {
+			$("#main-nav").toggleClass('hide-mobile');
+		});
 
 		var App = {};
 
@@ -307,12 +414,13 @@
 			},
 
 			clearImageList: function() {
+				this.$showmore.addClass('loading');
 			//	this.$photolist.html('');
 			},
 
 			renderImageList: function(data, nextURL) {
 				this.$photolist.html('');
-				this.$showmore.attr('href', nextURL);
+				this.$showmore.attr('href', nextURL).removeClass('loading');
 				Images.each(function(image) {
 					var view = new ImageView({model: image});
 					this.$photolist.append(view.render().el);
