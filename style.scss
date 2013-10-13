@@ -151,7 +151,15 @@ html {
 	border: #001855 solid 1px;
 	box-shadow: inset 0 1px #0649F3;
 	height: 40px;
-
+	//Disabled state
+	&[href="javascript:void(0)"] {
+		background: -webkit-linear-gradient(#949494, #666);
+		background: linear-gradient(#949494, #666);
+		border: 1px solid #666;
+		box-shadow: inset 0 1px #B3B3B3;
+		color: #AAA;
+		text-shadow: 0 1px 0 #555;
+	}
 	&.loading .label {
 		display: none;
 	}

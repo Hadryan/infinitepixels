@@ -57,8 +57,10 @@ var ImageList = Backbone.Collection.extend({
 			} else {
 				self.reset(response.data.photos);
 			}
-			//delete response.data.photos;
+			delete response.data.photos;
 			var template = params.nextURL ? params.nextURL : "#photos/<%= feature %>/<% print(current_page + 1) %>";
+			//Disable the show more if we're out of pages
+			var template = response.data.current_page >= response.data.total_pages ? "javascript:void(0)" : template;
 			var nextURL = _.template(template, response.data);
 			self.trigger('fetchend', response.data, nextURL);
 		});
